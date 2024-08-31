@@ -27,10 +27,11 @@ import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { FormType, UserType } from "./auth-form";
 import { useCreatePatient } from "@/hooks/patient/use-create-patient";
+import { SignInForm } from "./sign-in";
 
 interface PatientFormProps {
   formType: FormType;
-  userType?: UserType;
+  userType: UserType;
   initialData?: any;
 }
 
@@ -53,6 +54,7 @@ const gender = ["MALE", "FEMALE"];
 export const PatientForm: React.FC<PatientFormProps> = ({
   formType,
   initialData,
+  userType,
 }) => {
   const createPatientMutation = useCreatePatient();
   const defaultValues: z.infer<typeof FormSchema> = initialData
@@ -89,6 +91,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({
       createPatientMutation.mutate({ ...values });
     }
   };
+
+  if (formType === "SIGNIN") {
+    return <SignInForm userType={userType} />;
+  }
   return (
     <div>
       <Form {...form}>

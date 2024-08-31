@@ -16,10 +16,11 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { FormType, UserType } from "./auth-form";
+import { SignInForm } from "./sign-in";
 
 interface ReceptionistFormProps {
   formType: FormType;
-  userType?: UserType;
+  userType: UserType;
   initialData?: any;
 }
 
@@ -39,6 +40,7 @@ const gender = ["MALE", "FEMALE"];
 export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
   formType,
   initialData,
+  userType,
 }) => {
   const createReceptionistMutation = useCreateReceptionist();
   const defaultValues: z.infer<typeof FormSchema> = initialData
@@ -70,6 +72,10 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
       });
     }
   };
+
+  if (formType === "SIGNIN") {
+    return <SignInForm userType={userType} />;
+  }
   return (
     <div>
       <Form {...form}>

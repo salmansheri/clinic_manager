@@ -1,3 +1,5 @@
+"use client";
+
 import { FormType, UserType } from "./auth-form";
 import {
   Form,
@@ -16,20 +18,23 @@ import { Button } from "../ui/button";
 import { PasswordInput } from "../password-input";
 import { useCreateDoctor } from "@/hooks/doctor/use-create-doctor";
 import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { SignInForm } from "./sign-in";
 
 interface DoctorFormProps {
   formType: FormType;
-  userType?: UserType;
+  userType: UserType;
   initialData?: any;
 }
 
 const FormSchema = z.object({
   firstName: z
     .string()
-    .min(2, { message: "First name must contain minimum of 2 characters" }),
-  lastName: z.string(),
-  spacialization: z.string(),
-  contactNumber: z.string(),
+    .min(2, { message: "First name must contain minimum of 2 characters" })
+    .optional(),
+  lastName: z.string().optional(),
+  spacialization: z.string().optional(),
+  contactNumber: z.string().optional(),
   email: z.string().email(),
   password: z.string(),
 });
@@ -37,7 +42,9 @@ const FormSchema = z.object({
 export const DoctorForm: React.FC<DoctorFormProps> = ({
   formType,
   initialData,
+  userType,
 }) => {
+  // console.log(formType);
   const createDoctorMutation = useCreateDoctor();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
@@ -61,13 +68,19 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
     defaultValues: defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof FormSchema>) => {
+  // console.log(userType);
+
+  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
     if (formType === "SIGNUP") {
-      createDoctorMutation.mutate({
-        ...values,
-      });
+      // @ts-ignore
+      createDoctorMutation.mutate({ ...values });
+      return;
     }
   };
+
+  if (formType === "SIGNIN") {
+    return <SignInForm userType={userType} />;
+  }
   return (
     <div>
       <Form {...form}>
@@ -177,6 +190,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
               </FormItem>
             )}
           />
+
           <Button type="submit" className="w-full">
             {createDoctorMutation.isPending ? (
               <>

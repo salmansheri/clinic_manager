@@ -28,7 +28,13 @@ export const AuthForm: FC<AuthFormProps> = ({ type, initialData }) => {
   const userType = searchParams.get("query");
 
   const onUserTypeChange = (user: UserType) => {
-    router.push(`/sign-up?query=${user}`);
+    if (type === "SIGNUP") {
+      router.push(`/sign-up?query=${user}`);
+    }
+
+    if (type === "SIGNIN") {
+      router.push(`/sign-in?query=${user}`);
+    }
   };
 
   return (
@@ -52,9 +58,15 @@ export const AuthForm: FC<AuthFormProps> = ({ type, initialData }) => {
           )}
         </CardHeader>
         <CardContent>
-          {userType === "DOCTOR" && <DoctorForm formType={type} />}
-          {userType === "PATIENT" && <PatientForm formType={type} />}
-          {userType === "RECEPTIONIST" && <ReceptionistForm formType={type} />}
+          {userType === "DOCTOR" && (
+            <DoctorForm userType={userType} formType={type} />
+          )}
+          {userType === "PATIENT" && (
+            <PatientForm userType={userType} formType={type} />
+          )}
+          {userType === "RECEPTIONIST" && (
+            <ReceptionistForm userType={userType} formType={type} />
+          )}
         </CardContent>
         <Separator />
       </Card>
