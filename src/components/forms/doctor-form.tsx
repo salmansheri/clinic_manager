@@ -14,6 +14,8 @@ import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { PasswordInput } from "../password-input";
+import { useCreateDoctor } from "@/hooks/doctor/use-create-doctor";
+import { Loader2 } from "lucide-react";
 
 interface DoctorFormProps {
   formType: FormType;
@@ -36,6 +38,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
   formType,
   initialData,
 }) => {
+  const createDoctorMutation = useCreateDoctor();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
         firstName: initialData.firstName,
@@ -59,7 +62,11 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
   });
 
   const onSubmit = (values: z.infer<typeof FormSchema>) => {
-    console.log(values);
+    if (formType === "SIGNUP") {
+      createDoctorMutation.mutate({
+        ...values,
+      });
+    }
   };
   return (
     <div>
@@ -146,11 +153,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="eg: johndoe@gmail.com"
-                    {...field}
-                  />
+                  <Input placeholder="eg: johndoe@gmail.com" {...field} />
                 </FormControl>
                 <FormDescription>Enter Your Email</FormDescription>
                 <FormMessage />
@@ -159,7 +162,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
           />
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -175,7 +178,14 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
             )}
           />
           <Button type="submit" className="w-full">
-            Submit
+            {createDoctorMutation.isPending ? (
+              <>
+                <Loader2 className="animate-spin size-4" />
+                Loading...
+              </>
+            ) : (
+              <>Submit</>
+            )}
           </Button>
         </form>
       </Form>

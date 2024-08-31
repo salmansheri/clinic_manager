@@ -8,7 +8,7 @@ import {
 import { cn } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { PasswordInput } from "../password-input";
@@ -26,6 +26,7 @@ import {
 import { Input } from "../ui/input";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { FormType, UserType } from "./auth-form";
+import { useCreatePatient } from "@/hooks/patient/use-create-patient";
 
 interface PatientFormProps {
   formType: FormType;
@@ -38,7 +39,7 @@ const FormSchema = z.object({
     .string()
     .min(2, { message: "First name must contain minimum of 2 characters" }),
   lastName: z.string(),
-  dateOfBirth: z.string(),
+  dateOfBirth: z.date(),
   gender: z.string(),
   medicalHistory: z.string(),
   contactNumber: z.string(),
@@ -53,6 +54,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
   formType,
   initialData,
 }) => {
+  const createPatientMutation = useCreatePatient();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
         firstName: initialData.firstName,
@@ -82,7 +84,10 @@ export const PatientForm: React.FC<PatientFormProps> = ({
   });
 
   const onSubmit = (values: z.infer<typeof FormSchema>) => {
-    console.log(values);
+    if (formType === "SIGNUP") {
+      // @ts-ignore
+      createPatientMutation.mutate({ ...values });
+    }
   };
   return (
     <div>
@@ -215,7 +220,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
                       </FormControl>
                       <SelectContent>
                         {gender.map((g) => (
-                          <SelectItem key={g} value="m@example.com">
+                          <SelectItem key={g} value={g}>
                             {g}
                           </SelectItem>
                         ))}
@@ -255,11 +260,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="eg: johndoe@gmail.com"
-                    {...field}
-                  />
+                  <Input placeholder="eg: johndoe@gmail.com" {...field} />
                 </FormControl>
                 <FormDescription>Enter Your Email</FormDescription>
                 <FormMessage />
@@ -268,7 +269,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
           />
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -284,7 +285,14 @@ export const PatientForm: React.FC<PatientFormProps> = ({
             )}
           />
           <Button type="submit" className="w-full">
-            Submit
+            {createPatientMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 mr-2 animate-spin" />
+                Loading...
+              </>
+            ) : (
+              <>Submit</>
+            )}
           </Button>
         </form>
       </Form>
