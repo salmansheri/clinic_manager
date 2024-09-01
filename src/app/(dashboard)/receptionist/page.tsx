@@ -1,6 +1,16 @@
+import { Header } from "@/components/header";
 import { auth } from "@/lib/auth";
+import { redirect } from "next/navigation";
 
 export default async function DashboardPage() {
   const session = await auth();
-  return <div>{JSON.stringify(session)}</div>;
+
+  if (!session?.user?.email) {
+    return redirect("/sign-in");
+  }
+  return (
+    <div>
+      <Header />
+    </div>
+  );
 }

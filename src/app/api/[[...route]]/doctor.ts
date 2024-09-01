@@ -3,9 +3,20 @@ import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import prisma from "@/lib/prisma";
 import argon2 from "argon2";
+import { auth } from "@/lib/auth";
 
 const app = new Hono()
   .get("/", async (c) => {
+    const session = await auth();
+
+    if (!session?.user?.email) {
+      return c.json(
+        {
+          error: "Unauthorized",
+        },
+        401
+      );
+    }
     const data = await prisma.doctor.findMany();
 
     return c.json({
