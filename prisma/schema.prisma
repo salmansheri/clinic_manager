@@ -60,7 +60,7 @@ model Appointment {
   patientId String
   doctor    Doctor   @relation(fields: [doctorId], references: [id])
   doctorId  String
-  dateTime  DateTime
+  dateTime  String
   status    STATUS   @default(SHEDULED)
   notes     String?
   bill      Bill?

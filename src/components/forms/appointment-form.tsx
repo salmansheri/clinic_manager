@@ -30,18 +30,20 @@ import {
 } from "../ui/form";
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { Textarea } from "../ui/textarea";
+import type { InitialFormDataType } from "../edit-appoinments";
+import { useUpdatePatientAppointment } from "@/hooks/appointment/patient/use-update-patient-appointment";
 
 type AppointmentFormType = "CREATE" | "UPDATE";
 
 interface AppointmentFormProps {
   formType: AppointmentFormType;
-  initialData?: any;
+  initialData?: InitialFormDataType;
 }
 
 const FormSchema = z.object({
   doctorId: z.string(),
   notes: z.string(),
-  date: z.date(),
+  date: z.string(),
 });
 
 export const AppointmentForm: React.FC<AppointmentFormProps> = ({
@@ -53,18 +55,23 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
   const getDoctorsQuery = useGetDoctors();
   const doctorData = getDoctorsQuery.data;
   const createAppointmentMutation = useCreateAppointment();
+  const updatePatientAppointmentMutation = useUpdatePatientAppointment(
+    initialData?.id as string
+  );
 
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
-        doctorId: initialData.doctorId,
-        notes: initialData.notes,
+        doctorId: initialData.doctor,
+        notes: initialData.reason,
         date: initialData.date,
       }
     : {
         doctorId: "",
         notes: "",
-        date: new Date(),
+        date: "",
       };
+
+  console.log(defaultValues);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: defaultValues,
@@ -85,6 +92,14 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
           },
         }
       );
+    }
+
+    if (formType === "UPDATE") {
+      updatePatientAppointmentMutation.mutate(values, {
+        onSuccess: () => {
+          router.push("/patient/appointments");
+        },
+      });
     }
   };
 
@@ -157,38 +172,40 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
                 </FormItem>
               )}
             />
+            {formType === "CREATE" && (
+              <FormField
+                control={form.control}
+                name="doctorId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Doctor</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Doctor" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {doctorData?.map((doctor) => (
+                          <SelectItem key={doctor.id} value={doctor.id}>
+                            {`Dr. ${doctor.firstName} ${doctor.lastName}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
 
-            <FormField
-              control={form.control}
-              name="doctorId"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Doctor</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Doctor" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {doctorData?.map((doctor) => (
-                        <SelectItem key={doctor.id} value={doctor.id}>
-                          {`Dr. ${doctor.firstName} ${doctor.lastName}`}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
 
             <Button type="submit" className="w-full">
-              {createAppointmentMutation.isPending ? (
+              {createAppointmentMutation.isPending ||
+              updatePatientAppointmentMutation.isPending ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
                   Loading...

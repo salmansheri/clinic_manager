@@ -1,3 +1,5 @@
+import { SuccessClient } from "@/components/success-client";
+
 interface AppointmentPageProps {
   params: {
     appointmentId: string;
@@ -6,5 +8,6 @@ interface AppointmentPageProps {
 
 export default function AppointmentPage({ params }: AppointmentPageProps) {
   const { appointmentId } = params;
-  return <div>{appointmentId}</div>;
+
+  return <SuccessClient appointmentId={appointmentId} />;
 }

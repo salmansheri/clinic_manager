@@ -12,7 +12,6 @@ export default async function DashboardPage() {
   }
   return (
     <div>
-      <Header />
       <div className="flex items-center justify-center ">
         <AppointmentForm formType="CREATE" />
       </div>

@@ -13,7 +13,9 @@ app.onError((err, c) => {
     return err.getResponse();
   }
 
-  return c.json({ error: "Internal Server Error" }, 500);
+  console.log(err.message);
+
+  return c.json({ error: err.message }, 500);
 });
 
 const routes = app
