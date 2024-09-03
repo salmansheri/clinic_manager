@@ -23,6 +23,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useAlertDialog } from "@/hooks/use-alert-dialog";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -37,6 +49,7 @@ export function DataTable<TData, TValue>({
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [rowSelection, setRowSelection] = useState({});
+  const alertDialog = useAlertDialog();
   const table = useReactTable({
     data,
     columns,
@@ -67,16 +80,41 @@ export function DataTable<TData, TValue>({
           />
         </div>
         {table.getFilteredSelectedRowModel().rows.length !== 0 && (
-          <Button
-            variant="ghost"
-            className="text-red-600"
-            onClick={() => {
-              onDelete(table.getFilteredSelectedRowModel().rows);
-            }}
+          <AlertDialog
+            open={alertDialog.isOpen}
+            onOpenChange={alertDialog.onClose}
           >
-            <Trash className="size-4 mr-2" />
-            Delete ({table.getFilteredSelectedRowModel().rows.length})
-          </Button>
+            <Button
+              variant="ghost"
+              className="text-red-600"
+              onClick={() => {
+                alertDialog.onOpen();
+              }}
+            >
+              <Trash className="size-4 mr-2" />
+              Delete ({table.getFilteredSelectedRowModel().rows.length})
+            </Button>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you Alsolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete
+                  your account and remove your data from our servers.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => {
+                    onDelete(table.getFilteredSelectedRowModel().rows);
+                    table.resetRowSelection();
+                  }}
+                >
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         )}
       </div>
       <div className="rounded-md border">

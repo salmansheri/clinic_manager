@@ -43,7 +43,7 @@ interface AppointmentFormProps {
 const FormSchema = z.object({
   doctorId: z.string(),
   notes: z.string(),
-  date: z.string(),
+  date: z.date(),
 });
 
 export const AppointmentForm: React.FC<AppointmentFormProps> = ({
@@ -63,12 +63,12 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
     ? {
         doctorId: initialData.doctor,
         notes: initialData.reason,
-        date: initialData.date,
+        date: new Date(initialData.date),
       }
     : {
         doctorId: "",
         notes: "",
-        date: "",
+        date: new Date(),
       };
 
   console.log(defaultValues);
@@ -95,11 +95,18 @@ export const AppointmentForm: React.FC<AppointmentFormProps> = ({
     }
 
     if (formType === "UPDATE") {
-      updatePatientAppointmentMutation.mutate(values, {
-        onSuccess: () => {
-          router.push("/patient/appointments");
+      updatePatientAppointmentMutation.mutate(
+        {
+          date: String(values.date),
+          doctorId: values.doctorId,
+          notes: values.notes,
         },
-      });
+        {
+          onSuccess: () => {
+            router.push("/patient/appointments");
+          },
+        }
+      );
     }
   };
 

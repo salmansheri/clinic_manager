@@ -8,8 +8,12 @@ import { useGetAppointments } from "@/hooks/appointment/patient/use-get-appointm
 import { Loader2 } from "lucide-react";
 import { CustomCard } from "./custom-card";
 import { DataTable } from "./data-table";
+import { useAlertDialog } from "@/hooks/use-alert-dialog";
+import { useBulkDelete } from "@/hooks/appointment/patient/use-bulk-delelte";
 
 export const PatientAppointments = () => {
+  const alertDialog = useAlertDialog();
+  const bulkDeleteMutation = useBulkDelete();
   const getPatientAppointmentsQuery = useGetAppointments();
 
   const patientAppointmentsData = getPatientAppointmentsQuery.data;
@@ -24,8 +28,6 @@ export const PatientAppointments = () => {
     };
   }) as AppointmentColumnType[] | [];
 
-  console.log(`Patient data : ${tableData}`);
-
   if (getPatientAppointmentsQuery.isLoading) {
     return (
       <div>
@@ -39,7 +41,21 @@ export const PatientAppointments = () => {
         <div>Cannot find</div>
       ) : (
         <div>
-          <DataTable columns={columns} data={tableData} />
+          <DataTable
+            columns={columns}
+            data={tableData}
+            onDelete={(row) => {
+              const ids = row.map((r) => {
+                return r.original.id;
+              });
+
+              const payload = {
+                ids,
+              };
+
+              bulkDeleteMutation.mutate(payload);
+            }}
+          />
         </div>
       )}
     </CustomCard>

@@ -8,9 +8,5 @@ export default async function DashboardPage() {
   if (!session?.user?.email) {
     return redirect("/sign-in");
   }
-  return (
-    <div>
-      <Header />
-    </div>
-  );
+  return <div></div>;
 }

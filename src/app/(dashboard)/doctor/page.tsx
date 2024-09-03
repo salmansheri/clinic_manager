@@ -1,3 +1,11 @@
+import { TodaysAppointments } from "@/components/today-appointments";
+
 export default function DashboardPage() {
-  return <div>page</div>;
+  return (
+    <div>
+      <div className="">
+        <TodaysAppointments />
+      </div>
+    </div>
+  );
 }
