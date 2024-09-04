@@ -1,11 +1,12 @@
 import { client } from "@/lib/hono";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetTodaysAppointmens = () => {
+export const useGetApprovedAppointmens = () => {
   const query = useQuery({
-    queryKey: ["todaysAppointments"],
+    queryKey: ["approvedAppointments"],
     queryFn: async () => {
-      const response = await client.api.appointment.today.$get();
+      const response =
+        await client.api.appointment.receptionist.approved.appointments.$get();
 
       if (!response.ok) {
         throw new Error("Something went while Fetching Appointment Data");

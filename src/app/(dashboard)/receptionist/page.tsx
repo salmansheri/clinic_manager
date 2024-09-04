@@ -1,4 +1,4 @@
-import { Header } from "@/components/header";
+import { Receptionist } from "@/components/receptionist";
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -8,5 +8,9 @@ export default async function DashboardPage() {
   if (!session?.user?.email) {
     return redirect("/sign-in");
   }
-  return <div></div>;
+  return (
+    <div className="min-h-screen ">
+      <Receptionist />
+    </div>
+  );
 }

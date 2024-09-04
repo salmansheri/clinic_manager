@@ -36,11 +36,11 @@ export const PatientAppointments = () => {
     );
   }
   return (
-    <CustomCard className="w-full md:w-[80vw]">
+    <CustomCard className="w-full md:w-[80vw] my-10">
       {patientAppointmentsData === undefined ? (
         <div>Cannot find</div>
       ) : (
-        <div>
+        <div className="">
           <DataTable
             columns={columns}
             data={tableData}
