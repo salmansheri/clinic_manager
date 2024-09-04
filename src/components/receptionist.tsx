@@ -1,16 +1,15 @@
 "use client";
 
 import {
-  columns,
   AppointmentColumnType,
+  columns,
 } from "@/app/(dashboard)/receptionist/columns";
-import { CustomCard } from "./custom-card";
-import { DataTable } from "./data-table";
-import { useGetTodaysAppointmens } from "@/hooks/appointment/doctor/use-get-todays-appointments";
-import { CustomLoader } from "./customLoader";
+import { useGetApprovedAppointmens } from "@/hooks/appointment/receptionist/use-get-approved-appointment";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { useGetApprovedAppointmens } from "@/hooks/appointment/receptionist/use-get-approved-appointment";
+import { CustomCard } from "./custom-card";
+import { CustomLoader } from "./customLoader";
+import { DataTable } from "./data-table";
 
 export const Receptionist = () => {
   const getApprovedAppointmentsQuery = useGetApprovedAppointmens();
@@ -54,7 +53,7 @@ export const Receptionist = () => {
   }
 
   return (
-    <div className="h-[90vh] flex items-center justify-center">
+    <div className="min-h-[90vh] flex items-center justify-center my-10">
       <CustomCard className="w-full md:w-[80vw]">
         <h2 className="text-xl md:text-2xl font-bold">Approved Appointments</h2>
         <DataTable

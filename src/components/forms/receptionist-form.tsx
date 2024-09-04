@@ -17,6 +17,7 @@ import {
 import { Input } from "../ui/input";
 import { FormType, UserType } from "./auth-form";
 import { SignInForm } from "./sign-in";
+import { useRouter } from "next/navigation";
 
 interface ReceptionistFormProps {
   formType: FormType;
@@ -42,6 +43,7 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
   initialData,
   userType,
 }) => {
+  const router = useRouter();
   const createReceptionistMutation = useCreateReceptionist();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
@@ -67,9 +69,16 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
 
   const onSubmit = (values: z.infer<typeof FormSchema>) => {
     if (formType === "SIGNUP") {
-      createReceptionistMutation.mutate({
-        ...values,
-      });
+      createReceptionistMutation.mutate(
+        {
+          ...values,
+        },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
     }
   };
 

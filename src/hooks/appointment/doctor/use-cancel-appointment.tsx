@@ -4,32 +4,31 @@ import { client } from "@/lib/hono";
 import { toast } from "sonner";
 
 type RequestType = InferRequestType<
-  (typeof client.api.appointment.doctor.approved.status)[":id"]["$post"]
+  (typeof client.api.appointment.doctor.appointment.cancel)[":id"]["$post"]
 >["param"];
-
 type ResponseType = InferResponseType<
-  (typeof client.api.appointment.doctor.approved.status)[":id"]["$post"]
+  (typeof client.api.appointment.doctor.appointment.cancel)[":id"]["$post"]
 >;
 
-export const useDoctorApproved = () => {
-  const query = useQueryClient();
+export const useCancelAppointment = () => {
+  const queryClient = useQueryClient();
+
   const mutation = useMutation<ResponseType, Error, RequestType>({
     mutationFn: async (param) => {
-      const response = await client.api.appointment.doctor.approved.status[
+      const response = await client.api.appointment.doctor.appointment.cancel[
         ":id"
-      ].$post({ param });
+      ].$post({
+        param,
+      });
 
-      if (!response.ok) {
-        throw new Error("Something went Wrong");
-      }
+      if (!response) throw new Error("Something went wrong!");
 
       const data = await response.json();
-
       return data;
     },
     onSuccess: () => {
-      query.invalidateQueries({ queryKey: ["todaysAppointments"] });
-      toast.success("Appointment Approved!");
+      queryClient.invalidateQueries({ queryKey: ["todaysAppointments"] });
+      toast.success("Assign token Successfully!");
     },
     onError: (error) => {
       console.log(error.message);

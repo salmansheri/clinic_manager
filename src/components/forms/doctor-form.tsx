@@ -20,6 +20,7 @@ import { useCreateDoctor } from "@/hooks/doctor/use-create-doctor";
 import { Loader2 } from "lucide-react";
 import { signIn } from "next-auth/react";
 import { SignInForm } from "./sign-in";
+import { useRouter } from "next/navigation";
 
 interface DoctorFormProps {
   formType: FormType;
@@ -45,6 +46,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
   userType,
 }) => {
   // console.log(formType);
+  const router = useRouter();
   const createDoctorMutation = useCreateDoctor();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
@@ -72,9 +74,15 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
 
   const onSubmit = async (values: z.infer<typeof FormSchema>) => {
     if (formType === "SIGNUP") {
-      // @ts-ignore
-      createDoctorMutation.mutate({ ...values });
-      return;
+      createDoctorMutation.mutate(
+        // @ts-ignore
+        { ...values },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
     }
   };
 

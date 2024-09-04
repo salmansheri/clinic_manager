@@ -1,17 +1,17 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
-import { Edit, Loader2, MoreHorizontal, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCancelAppointment } from "@/hooks/appointment/doctor/use-cancel-appointment";
 import { useDoctorApproved } from "@/hooks/appointment/doctor/use-doctor-approved";
+import { Loader2, MoreHorizontal } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 interface DoctorRowActionsProps {
   id: string;
@@ -19,8 +19,12 @@ interface DoctorRowActionsProps {
 export const DoctorRowActions: React.FC<DoctorRowActionsProps> = ({ id }) => {
   const pathname = usePathname();
   const approvedAppointmentMutation = useDoctorApproved();
+  const cancelAppointmentMutation = useCancelAppointment();
 
-  if (approvedAppointmentMutation.isPending) {
+  if (
+    approvedAppointmentMutation.isPending ||
+    cancelAppointmentMutation.isPending
+  ) {
     return (
       <div>
         <Loader2 className="size-4 animate-spin" />
@@ -28,12 +32,7 @@ export const DoctorRowActions: React.FC<DoctorRowActionsProps> = ({ id }) => {
     );
   }
 
-  if (
-    pathname === "/doctor/appointments/approved" ||
-    pathname.includes("/approved")
-  ) {
-    return null;
-  }
+  const isApproved = pathname === "/doctor/appointments/approved";
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -44,12 +43,19 @@ export const DoctorRowActions: React.FC<DoctorRowActionsProps> = ({ id }) => {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
-        <DropdownMenuItem
-          onClick={() => approvedAppointmentMutation.mutate({ id })}
-        >
-          Accept
-        </DropdownMenuItem>
+        {isApproved ? (
+          <DropdownMenuItem
+            onClick={() => cancelAppointmentMutation.mutate({ id })}
+          >
+            Cancel
+          </DropdownMenuItem>
+        ) : (
+          <DropdownMenuItem
+            onClick={() => approvedAppointmentMutation.mutate({ id })}
+          >
+            Accept
+          </DropdownMenuItem>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

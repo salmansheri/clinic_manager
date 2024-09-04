@@ -28,6 +28,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { FormType, UserType } from "./auth-form";
 import { useCreatePatient } from "@/hooks/patient/use-create-patient";
 import { SignInForm } from "./sign-in";
+import { useRouter } from "next/navigation";
 
 interface PatientFormProps {
   formType: FormType;
@@ -56,6 +57,7 @@ export const PatientForm: React.FC<PatientFormProps> = ({
   initialData,
   userType,
 }) => {
+  const router = useRouter();
   const createPatientMutation = useCreatePatient();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
@@ -87,8 +89,15 @@ export const PatientForm: React.FC<PatientFormProps> = ({
 
   const onSubmit = (values: z.infer<typeof FormSchema>) => {
     if (formType === "SIGNUP") {
-      // @ts-ignore
-      createPatientMutation.mutate({ ...values });
+      createPatientMutation.mutate(
+        // @ts-ignore
+        { ...values },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
     }
   };
 

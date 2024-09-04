@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+.gradient-bg {
   background-color: #111927;
   background-image: radial-gradient(
       at 47% 33%,

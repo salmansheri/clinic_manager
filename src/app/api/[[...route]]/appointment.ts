@@ -734,6 +734,104 @@ const app = new Hono()
         data,
       });
     }
+  )
+  .post(
+    "/doctor/appointment/cancel/:id",
+    zValidator(
+      "param",
+      z.object({
+        id: z.string(),
+      })
+    ),
+    async (c) => {
+      const session = await auth();
+      const params = c.req.valid("param");
+
+      if (!session?.user?.email) {
+        return c.json(
+          {
+            error: "Unauthorized",
+          },
+          404
+        );
+      }
+
+      const doctor = await prisma.doctor.findUnique({
+        where: {
+          email: session?.user?.email,
+        },
+      });
+
+      if (!doctor?.email) {
+        return c.json(
+          {
+            error: "Not Allowed",
+          },
+          400
+        );
+      }
+
+      const appointment = await prisma.appointment.findUnique({
+        where: {
+          id: params.id,
+        },
+        include: {
+          patient: true,
+        },
+      });
+
+      if (!appointment) {
+        return c.json(
+          {
+            error: "Cannot find Appointment",
+          },
+          400
+        );
+      }
+
+      const updatedAppointment = await prisma.appointment.update({
+        where: {
+          id: appointment.id!,
+        },
+        data: {
+          status: "CANCELLED",
+        },
+      });
+      if (!appointment.id) {
+        return c.json(
+          {
+            error: "Cannot Cancel appointment",
+          },
+          400
+        );
+      }
+
+      const { data, error } = await resend.emails.send({
+        from: "Clinic Manager <onboarding@resend.dev>",
+        to: [`${appointment?.patient?.email}`],
+        subject: "Appointment Cancelled!",
+        react: EmailTemplate({
+          firstName: appointment?.patient?.firstName,
+          lastName: appointment?.patient?.lastName,
+          title: `Your appointment has been cancelled`,
+          date: appointment?.dateTime,
+        }),
+      });
+
+      if (error) {
+        c.json(
+          {
+            error: error.message,
+          },
+          400
+        );
+      }
+
+      return c.json({
+        updatedAppointment,
+        data,
+      });
+    }
   );
 
 export default app;
