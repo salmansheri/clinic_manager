@@ -1,3 +1,5 @@
+"use client";
+
 import { FormType, UserType } from "./auth-form";
 import {
   Form,
@@ -14,20 +16,26 @@ import { z } from "zod";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { PasswordInput } from "../password-input";
+import { useCreateDoctor } from "@/hooks/doctor/use-create-doctor";
+import { Loader2 } from "lucide-react";
+import { signIn } from "next-auth/react";
+import { SignInForm } from "./sign-in";
+import { useRouter } from "next/navigation";
 
 interface DoctorFormProps {
   formType: FormType;
-  userType?: UserType;
+  userType: UserType;
   initialData?: any;
 }
 
 const FormSchema = z.object({
   firstName: z
     .string()
-    .min(2, { message: "First name must contain minimum of 2 characters" }),
-  lastName: z.string(),
-  spacialization: z.string(),
-  contactNumber: z.string(),
+    .min(2, { message: "First name must contain minimum of 2 characters" })
+    .optional(),
+  lastName: z.string().optional(),
+  spacialization: z.string().optional(),
+  contactNumber: z.string().optional(),
   email: z.string().email(),
   password: z.string(),
 });
@@ -35,7 +43,11 @@ const FormSchema = z.object({
 export const DoctorForm: React.FC<DoctorFormProps> = ({
   formType,
   initialData,
+  userType,
 }) => {
+  // console.log(formType);
+  const router = useRouter();
+  const createDoctorMutation = useCreateDoctor();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
         firstName: initialData.firstName,
@@ -58,9 +70,25 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
     defaultValues: defaultValues,
   });
 
-  const onSubmit = (values: z.infer<typeof FormSchema>) => {
-    console.log(values);
+  // console.log(userType);
+
+  const onSubmit = async (values: z.infer<typeof FormSchema>) => {
+    if (formType === "SIGNUP") {
+      createDoctorMutation.mutate(
+        // @ts-ignore
+        { ...values },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
+    }
   };
+
+  if (formType === "SIGNIN") {
+    return <SignInForm userType={userType} />;
+  }
   return (
     <div>
       <Form {...form}>
@@ -146,11 +174,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="eg: johndoe@gmail.com"
-                    {...field}
-                  />
+                  <Input placeholder="eg: johndoe@gmail.com" {...field} />
                 </FormControl>
                 <FormDescription>Enter Your Email</FormDescription>
                 <FormMessage />
@@ -159,7 +183,7 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
           />
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -174,8 +198,16 @@ export const DoctorForm: React.FC<DoctorFormProps> = ({
               </FormItem>
             )}
           />
+
           <Button type="submit" className="w-full">
-            Submit
+            {createDoctorMutation.isPending ? (
+              <>
+                <Loader2 className="animate-spin size-4" />
+                Loading...
+              </>
+            ) : (
+              <>Submit</>
+            )}
           </Button>
         </form>
       </Form>

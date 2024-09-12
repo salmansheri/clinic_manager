@@ -1,19 +1,10 @@
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { cn } from "@/lib/utils";
+import { useCreateReceptionist } from "@/hooks/receptionist/use-create-receptionist";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
-import { CalendarIcon } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { PasswordInput } from "../password-input";
 import { Button } from "../ui/button";
-import { Calendar } from "../ui/calendar";
 import {
   Form,
   FormControl,
@@ -24,12 +15,13 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { FormType, UserType } from "./auth-form";
+import { SignInForm } from "./sign-in";
+import { useRouter } from "next/navigation";
 
 interface ReceptionistFormProps {
   formType: FormType;
-  userType?: UserType;
+  userType: UserType;
   initialData?: any;
 }
 
@@ -49,7 +41,10 @@ const gender = ["MALE", "FEMALE"];
 export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
   formType,
   initialData,
+  userType,
 }) => {
+  const router = useRouter();
+  const createReceptionistMutation = useCreateReceptionist();
   const defaultValues: z.infer<typeof FormSchema> = initialData
     ? {
         firstName: initialData.firstName,
@@ -73,8 +68,23 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
   });
 
   const onSubmit = (values: z.infer<typeof FormSchema>) => {
-    console.log(values);
+    if (formType === "SIGNUP") {
+      createReceptionistMutation.mutate(
+        {
+          ...values,
+        },
+        {
+          onSuccess: () => {
+            router.push("/sign-in");
+          },
+        }
+      );
+    }
   };
+
+  if (formType === "SIGNIN") {
+    return <SignInForm userType={userType} />;
+  }
   return (
     <div>
       <Form {...form}>
@@ -142,11 +152,7 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input
-                    type="number"
-                    placeholder="eg: johndoe@gmail.com"
-                    {...field}
-                  />
+                  <Input placeholder="eg: johndoe@gmail.com" {...field} />
                 </FormControl>
                 <FormDescription>Enter Your Email</FormDescription>
                 <FormMessage />
@@ -155,7 +161,7 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
           />
           <FormField
             control={form.control}
-            name="email"
+            name="password"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Password</FormLabel>
@@ -171,7 +177,14 @@ export const ReceptionistForm: React.FC<ReceptionistFormProps> = ({
             )}
           />
           <Button type="submit" className="w-full">
-            Submit
+            {createReceptionistMutation.isPending ? (
+              <>
+                <Loader2 className="size-4 animate-spin mr-2" />
+                Loading...
+              </>
+            ) : (
+              <>Submit</>
+            )}
           </Button>
         </form>
       </Form>
