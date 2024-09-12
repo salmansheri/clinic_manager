@@ -38,40 +38,38 @@ export const AuthForm: FC<AuthFormProps> = ({ type, initialData }) => {
   };
 
   return (
-    <Suspense>
-      <div>
-        <Card className="w-[90vw] md:w-[70vw] lg:w-[50vw]">
-          <div className="p-5 grid gap-4 grid-cols-1 lg:grid-cols-3">
-            <Button onClick={() => onUserTypeChange("PATIENT")}>
-              Continue as Patient
-            </Button>
-            <Button onClick={() => onUserTypeChange("DOCTOR")}>
-              Continue as Doctor
-            </Button>
-            <Button onClick={() => onUserTypeChange("RECEPTIONIST")}>
-              Continue as Receptionist
-            </Button>
-          </div>
-          <CardHeader className="grid grid-cols-2 ">
-            <CardTitle>{title}</CardTitle>
-            {userType && (
-              <Badge className="w-fit my-2 place-self-end">{userType}</Badge>
-            )}
-          </CardHeader>
-          <CardContent>
-            {userType === "DOCTOR" && (
-              <DoctorForm userType={userType} formType={type} />
-            )}
-            {userType === "PATIENT" && (
-              <PatientForm userType={userType} formType={type} />
-            )}
-            {userType === "RECEPTIONIST" && (
-              <ReceptionistForm userType={userType} formType={type} />
-            )}
-          </CardContent>
-          <Separator />
-        </Card>
-      </div>
-    </Suspense>
+    <div>
+      <Card className="w-[90vw] md:w-[70vw] lg:w-[50vw]">
+        <div className="p-5 grid gap-4 grid-cols-1 lg:grid-cols-3">
+          <Button onClick={() => onUserTypeChange("PATIENT")}>
+            Continue as Patient
+          </Button>
+          <Button onClick={() => onUserTypeChange("DOCTOR")}>
+            Continue as Doctor
+          </Button>
+          <Button onClick={() => onUserTypeChange("RECEPTIONIST")}>
+            Continue as Receptionist
+          </Button>
+        </div>
+        <CardHeader className="grid grid-cols-2 ">
+          <CardTitle>{title}</CardTitle>
+          {userType && (
+            <Badge className="w-fit my-2 place-self-end">{userType}</Badge>
+          )}
+        </CardHeader>
+        <CardContent>
+          {userType === "DOCTOR" && (
+            <DoctorForm userType={userType} formType={type} />
+          )}
+          {userType === "PATIENT" && (
+            <PatientForm userType={userType} formType={type} />
+          )}
+          {userType === "RECEPTIONIST" && (
+            <ReceptionistForm userType={userType} formType={type} />
+          )}
+        </CardContent>
+        <Separator />
+      </Card>
+    </div>
   );
 };
