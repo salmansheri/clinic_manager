@@ -1,4 +1,3 @@
-import { CustomButton } from "@/components/custom-button";
 import { GetStarted } from "@/components/get-started";
 import { WavyBackground } from "@/components/wavy-background";
 import Image from "next/image";

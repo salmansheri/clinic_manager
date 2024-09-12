@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={cn("gradient-bg", font.className)}>
+      <body className={cn(font.className)}>
         <ReactQueryProvider>
           <ThemeProvider attribute="class" defaultTheme="dark">
             {children}
